@@ -12,11 +12,13 @@ import com.example.Ecommerce_Backend.Repository.CartRepository;
 import com.example.Ecommerce_Backend.Repository.ProductRepository;
 import com.example.Ecommerce_Backend.Repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class CartService {
     CartRepository cartRepository;
     CartItemRepository cartItemRepository;
