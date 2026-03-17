@@ -32,7 +32,8 @@ public class AuthService {
 
     public ResponseEntity<?> registerUser(RegisterRequest registerRequest) {
         if(userRepository.existsByEmail(registerRequest.getEmail())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(registerRequest.getEmail(), null, "User already exist"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new AuthResponse(null, registerRequest.getEmail(), null, null, "User already exist"));
         }
         Users user = new Users();
         user.setName(registerRequest.getName());
@@ -43,7 +44,8 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(registerRequest.getEmail(), token, "User registered successfully"));
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(new AuthResponse(user.getName(), user.getEmail(), user.getRole().name(), token, "User registered successfully"));
     }
 
     public ResponseEntity<?> loginUser(LoginRequest loginRequest) {
@@ -55,10 +57,20 @@ public class AuthService {
             );
 
             String token = jwtUtil.generateToken(loginRequest.getEmail());
-            return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse(loginRequest.getEmail(), token, "Login Success"));
+                Users user = userRepository.findByEmail(loginRequest.getEmail()).orElse(null);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                    .body(new AuthResponse(
+                        user != null ? user.getName() : null,
+                        user != null ? user.getEmail() : loginRequest.getEmail(),
+                    user != null ? user.getRole().name() : null,
+                        token,
+                        "Login Success"
+                    ));
 
         }catch (AuthenticationException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse(loginRequest.getEmail(), null, "Invalid email or password"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new AuthResponse(null, loginRequest.getEmail(), null, null, "Invalid email or password"));
         }
     }
 }
